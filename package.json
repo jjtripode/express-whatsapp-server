@@ -1,0 +1,29 @@
+{
+  "name": "express-whatsapp",
+  "version": "1.0.0",
+  "description": "test ws",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jjtripode/express-whatsapp-server.git"
+  },
+  "keywords": [
+    "express",
+    "business",
+    "whatsapp"
+  ],
+  "author": "juanchotalarga",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jjtripode/express-whatsapp-server/issues"
+  },
+  "homepage": "https://github.com/jjtripode/express-whatsapp-server#readme"
+}
