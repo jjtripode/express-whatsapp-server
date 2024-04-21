@@ -13,88 +13,80 @@ const openai = new OpenAI({
 
 const app = express()
 
-//to verify the callback url from dashboard side - cloud api side
-app.get("/webhook",(req,res)=>{
-  console.log('entro al get');
-  let mode=req.query["hub.mode"];
-  let challenge=req.query["hub.challenge"];
-  let token=req.query["hub.verify_token"];
-  console.log('lee request')
-   if(mode && token){
+const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT } = process.env;
 
-       if(mode==="subscribe" && token===process.env.WHATSAPP_WEBHOOK_TOKEN){
-   console.log('return 1')
-           
-        res.status(200).send(challenge);
-       }else{
-   console.log('return 2')
+app.post("/webhook", async (req, res) => {
+  // log incoming messages
+  console.log("Incoming webhook message:", JSON.stringify(req.body, null, 2));
 
-           res.status(403).send();
-       }
+  // check if the webhook request contains a message
+  // details on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
+  const message = req.body.entry?.[0]?.changes[0]?.value?.messages?.[0];
 
-   }
-   console.log('return 3')
-   res.status(403).send();
-});
+  // check if the incoming message contains text
+  if (message?.type === "text") {
+    // extract the business number to send the reply from it
+    const business_phone_number_id =
+      req.body.entry?.[0].changes?.[0].value?.metadata?.phone_number_id;
 
-app.post("/webhook",(req,res)=>{ //i want some 
-
-   let body_param=req.body;
-
-   console.log(JSON.stringify(body_param,null,2));
-
-   if(body_param.object){
-       console.log("inside body param");
-       if(body_param.entry && 
-           body_param.entry[0].changes && 
-           body_param.entry[0].changes[0].value.messages && 
-           body_param.entry[0].changes[0].value.messages[0]  
-           ){
-              let phon_no_id=body_param.entry[0].changes[0].value.metadata.phone_number_id;
-              let from = body_param.entry[0].changes[0].value.messages[0].from; 
-              let msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
-
-              console.log("phone number "+phon_no_id);
-              console.log("from "+from);
-              console.log("boady param "+msg_body);
-              let token='EAAU6Jo9BgUgBO4ZArt7Cr9BLAHC4H6jBezJq4vLAMNfZB8TOcgkkbkdGd8CIqqAs6XD9o0p83jjf6YoWqXt8Re3Q6GFY2wviUBy66r7NQrSjtGgZAzEKExxQ7H7AAWAYTENJgZCRWxCH9w6DBeM8UGZASBwQPWuZAKHgMJ2fnmdnWxZBclmVdCxGOpeJA4PJAsbTZAVDrTyfZCklB0yLv'
-              axios({
-                  method:"POST",
-                  url:"https://graph.facebook.com/v18.0/"+phon_no_id+"/messages?access_token="+token,
-                  data:{
-                      messaging_product:"whatsapp",
-                      to:from,
-                      text:{
-                          body:"Hi.. I'm Prasath, your message is "+msg_body
-                      }
-                  },
-                  headers:{
-                      "Content-Type":"application/json"
-                  }
-
-              });
-
-              res.sendStatus(200);
-           }else{
-               res.sendStatus(404);
-           }
-
-   }
-
-});
-
-app.get('/', async (req,res)=>{
-  res.end(JSON.stringify({ a: 'pppppcdsac' }));
-})
-
-app.get('/chatgpt', async (req,res)=>{
-  const completion = await openai.chat.completions.create({
-      messages: [{ role: "system", content: "You are a helpful assistant." }],
-      model: "gpt-3.5-turbo",
+    // send a reply message as per the docs here https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
+    await axios({
+      method: "POST",
+      url: `https://graph.facebook.com/v18.0/${business_phone_number_id}/messages`,
+      headers: {
+        Authorization: `Bearer ${GRAPH_API_TOKEN}`,
+      },
+      data: {
+        messaging_product: "whatsapp",
+        to: message.from,
+        text: { body: "Echo: " + message.text.body },
+        context: {
+          message_id: message.id, // shows the message as a reply to the original user message
+        },
+      },
     });
-  
-  res.end(JSON.stringify({ a: 'pppppcdsac' }));
-})
 
-app.listen(3001)
-console.log(`on port 3001`)
+    // mark incoming message as read
+    await axios({
+      method: "POST",
+      url: `https://graph.facebook.com/v18.0/${business_phone_number_id}/messages`,
+      headers: {
+        Authorization: `Bearer ${GRAPH_API_TOKEN}`,
+      },
+      data: {
+        messaging_product: "whatsapp",
+        status: "read",
+        message_id: message.id,
+      },
+    });
+  }
+
+  res.sendStatus(200);
+});
+
+// accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
+// info on verification request payload: https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
+app.get("/webhook", (req, res) => {
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
+
+  // check the mode and token sent are correct
+  if (mode === "subscribe" && token === WEBHOOK_VERIFY_TOKEN) {
+    // respond with 200 OK and challenge token from the request
+    res.status(200).send(challenge);
+    console.log("Webhook verified successfully!");
+  } else {
+    // respond with '403 Forbidden' if verify tokens do not match
+    res.sendStatus(403);
+  }
+});
+
+app.get("/", (req, res) => {
+  res.send(`<pre>Nothing to see here.
+Checkout README.md to start.</pre>`);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is listening on port: ${PORT}`);
+});
