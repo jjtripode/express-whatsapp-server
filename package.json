@@ -4,7 +4,9 @@
   "description": "test ws",
   "main": "server.js",
   "dependencies": {
-    "express": "^4.19.2"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "openai": "^4.33.1"
   },
   "devDependencies": {},
   "scripts": {
