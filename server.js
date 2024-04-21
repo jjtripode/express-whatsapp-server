@@ -4,8 +4,9 @@ const body_parser=require("body-parser");
 const axios=require("axios");
 require('dotenv').config();
 
-console.log(`api es ${process.env.OPENAI_API_KEY}`)
-console.log(`api es ${process.env.WHATSAPP_WEBHOOK_TOKEN}`)
+console.log(`api es openAI${process.env.OPENAI_API_KEY}`)
+console.log(`api es wapi ${process.env.GRAPH_API_TOKEN}`)
+console.log(`api es wh ${process.env.WEBHOOK_VERIFY_TOKEN}`)
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
