@@ -16,7 +16,7 @@ const app = express()
 
 const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT, business_phone_number_id } = process.env;
 
-app.post("/webhook", async (req, res) => {
+app.post("/webhook", (req, res) => {
   
   const { headers, params, query, body } = req; // Extraer propiedades relevantes del objeto req
   const serializedReq = {
@@ -42,7 +42,7 @@ if(req && req.body && req.body.entry){
   //     req.body.entry?.[0].changes?.[0].value?.metadata?.phone_number_id;
 
     // send a reply message as per the docs here https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
-    await axios({
+     axios({
       method: "POST",
       url: `https://graph.facebook.com/v18.0/${business_phone_number_id}/messages`,
       headers: {
