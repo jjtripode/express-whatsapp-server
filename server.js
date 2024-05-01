@@ -17,12 +17,20 @@ const app = express()
 const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT, business_phone_number_id } = process.env;
 
 app.post("/webhook", async (req, res) => {
-  // log incoming messages
+  
+  const { headers, params, query, body } = req; // Extraer propiedades relevantes del objeto req
+  const serializedReq = {
+    headers,
+    params,
+    query,
+    body
+  };
+
   console.log("Incoming webhook message:");
   console.log("--------------------POST----------------------------------------------------------");
-  console.log(JSON.stringify(req, null, 2));
+  console.log(JSON.stringify(serializedReq, null, 2)); 
   console.log("------------------------------------------------------------------------------");
-if(req){
+if(req && req.body && req.body.entry){
   // check if the webhook request contains a message
   // details on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   const message = req.body.entry?.[0]?.changes[0]?.value?.messages?.[0];
