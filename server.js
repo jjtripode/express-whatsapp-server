@@ -19,10 +19,10 @@ const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT, business_phone_number_id } 
 app.post("/webhook", async (req, res) => {
   // log incoming messages
   console.log("Incoming webhook message:");
+  console.log("--------------------POST----------------------------------------------------------");
+  console.log(req);
   console.log("------------------------------------------------------------------------------");
-  console.log(JSON.stringify(req.body));
-  console.log("------------------------------------------------------------------------------");
-
+if(req){
   // check if the webhook request contains a message
   // details on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   const message = req.body.entry?.[0]?.changes[0]?.value?.messages?.[0];
@@ -64,14 +64,14 @@ app.post("/webhook", async (req, res) => {
     //   },
     // });
   // }
-
+  }
   res.sendStatus(200);
 });
 
 // accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
 // info on verification request payload: https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
 app.get("/webhook", (req, res) => {
-  console.log("------------------------------------------------------------------------------");
+  console.log("-----------GET-------------------------------------------------------------------");
   console.log(req);
   console.log("------------------------------------------------------------------------------");
   const mode = req.query["hub.mode"];
