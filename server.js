@@ -1,6 +1,6 @@
 const OpenAI = require("openai");
 const express = require("express");
-const body_parser=require("body-parser");
+const bodyParser=require("body-parser");
 const axios=require("axios");
 require('dotenv').config();
 
@@ -16,7 +16,28 @@ const app = express()
 
 const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT, business_phone_number_id } = process.env;
 
-app.post("/webhook", (req, res) => {
+var customParser = bodyParser.json({type: function(req) {
+  if (req.headers['content-type'] === ""){
+      return req.headers['content-type'] = 'application/json';
+  }
+  else if (typeof req.headers['content-type'] === 'undefined'){
+      return req.headers['content-type'] = 'application/json';
+  }else{
+      return req.headers['content-type'] = 'application/json';
+  }
+}});
+
+app.use(bodyParser.json({
+  limit: '50mb',
+  extended: true
+})); // support encoded bodies
+
+app.use(bodyParser.urlencoded({
+  limit: '50mb',
+  extended: true
+})); //
+
+app.post("/webhook", customParser, (req, res) => {
   
   const { headers, params, query, body } = req; // Extraer propiedades relevantes del objeto req
   const serializedReq = {
@@ -41,22 +62,22 @@ if(req && req.body && req.body.entry){
   //   const business_phone_number_id =
   //     req.body.entry?.[0].changes?.[0].value?.metadata?.phone_number_id;
 
-    // send a reply message as per the docs here https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
-     axios({
-      method: "POST",
-      url: `https://graph.facebook.com/v18.0/${business_phone_number_id}/messages`,
-      headers: {
-        Authorization: `Bearer ${GRAPH_API_TOKEN}`,
-      },
-      data: {
-        messaging_product: "whatsapp",
-        to: message.from,
-        text: { body: "Echo: " + message.text.body },
-        context: {
-          message_id: message.id, // shows the message as a reply to the original user message
-        },
-      },
-    });
+    // // send a reply message as per the docs here https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
+    //  axios({
+    //   method: "POST",
+    //   url: `https://graph.facebook.com/v18.0/${business_phone_number_id}/messages`,
+    //   headers: {
+    //     Authorization: `Bearer ${GRAPH_API_TOKEN}`,
+    //   },
+    //   data: {
+    //     messaging_product: "whatsapp",
+    //     to: message.from,
+    //     text: { body: "Echo: " + message.text.body },
+    //     context: {
+    //       message_id: message.id, // shows the message as a reply to the original user message
+    //     },
+    //   },
+    // });
 
     // mark incoming message as read
     // await axios({
