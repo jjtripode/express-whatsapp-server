@@ -20,7 +20,7 @@ app.post("/webhook", async (req, res) => {
   // log incoming messages
   console.log("Incoming webhook message:");
   console.log("--------------------POST----------------------------------------------------------");
-  console.log(req);
+  console.log(JSON.stringify(req, null, 2));
   console.log("------------------------------------------------------------------------------");
 if(req){
   // check if the webhook request contains a message
