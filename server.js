@@ -18,9 +18,9 @@ const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT } = process.env;
 
 app.post("/webhook", async (req, res) => {
   // log incoming messages
-  console.log("Incoming webhook message:", JSON.stringify(req.body, null, 2));
+  console.log("Incoming webhook message:");
   console.log("------------------------------------------------------------------------------");
-  console.log(JSON.stringify(req.body, null, 2));
+  console.log(req);
   console.log("------------------------------------------------------------------------------");
 
   // check if the webhook request contains a message
