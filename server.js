@@ -14,7 +14,7 @@ const openai = new OpenAI({
 
 const app = express()
 
-const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT } = process.env;
+const { WEBHOOK_VERIFY_TOKEN, GRAPH_API_TOKEN, PORT, business_phone_number_id } = process.env;
 
 app.post("/webhook", async (req, res) => {
   // log incoming messages
@@ -34,21 +34,21 @@ app.post("/webhook", async (req, res) => {
   //     req.body.entry?.[0].changes?.[0].value?.metadata?.phone_number_id;
 
     // send a reply message as per the docs here https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
-    // await axios({
-    //   method: "POST",
-    //   url: `https://graph.facebook.com/v18.0/${business_phone_number_id}/messages`,
-    //   headers: {
-    //     Authorization: `Bearer ${GRAPH_API_TOKEN}`,
-    //   },
-    //   data: {
-    //     messaging_product: "whatsapp",
-    //     to: message.from,
-    //     text: { body: "Echo: " + message.text.body },
-    //     context: {
-    //       message_id: message.id, // shows the message as a reply to the original user message
-    //     },
-    //   },
-    // });
+    await axios({
+      method: "POST",
+      url: `https://graph.facebook.com/v18.0/${business_phone_number_id}/messages`,
+      headers: {
+        Authorization: `Bearer ${GRAPH_API_TOKEN}`,
+      },
+      data: {
+        messaging_product: "whatsapp",
+        to: message.from,
+        text: { body: "Echo: " + message.text.body },
+        context: {
+          message_id: message.id, // shows the message as a reply to the original user message
+        },
+      },
+    });
 
     // mark incoming message as read
     // await axios({
