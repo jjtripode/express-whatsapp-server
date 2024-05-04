@@ -118,52 +118,72 @@ app.get("/webhook", (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send(`<pre>Nothing to see here.
-Checkout README.md to start.</pre>`);
-});
 
 app.get('/send-message', async (req, res) => {
   try {
-    const { phoneNumber, message } = req.body;
-
-    // Construir el objeto de datos para la solicitud
-    const data = {
-      to: `543489313416`,
-      type: 'text',
-      content: {
-        text: message
-      }
-    };
 
     // Realizar la solicitud POST a la API de WhatsApp Business
     const response = await axios
     .post('https://graph.facebook.com/v18.0/285730041281905/messages',
-    data = {
-      to: `543489313416`,
-      type: 'text',
-      content: {
-        text: message
+    {
+      "messaging_product": "whatsapp",   
+      "recipient_type": "individual",
+      "to": "543489313416",
+      "type": "text",
+      "text": {
+          "preview_url": false,
+          "body": "text-message-content"
       }
-    }, {
+    }
+    // {
+    //   "messaging_product": "whatsapp",
+    //   // "preview_url": false ,
+    //   // "recipient_type": "individual",
+    //   "to": "543489313416",
+    //   "type": "text",
+    //   "text": {
+    //     // "type": "BODY", 
+    //       "body": "your-text-message-content"
+    //   }
+    // } 
+    //  { 
+    //    "messaging_product": "whatsapp",
+    //   "to": "543489313416",
+    //   "type": "template",
+    //    "template": {
+    //       "name": "hello_world",
+    //       "language": {
+    //           "code": "en_US"
+    //       }
+    //   }
+    // } 
+    ,
+     {
       headers: {
         'Authorization': `Bearer ${GRAPH_API_TOKEN}`,
         'Content-Type': 'application/json'
       }
-    });
+    }
+  );
 
     // Verificar el estado de la respuesta
     if (response.status === 200) {
+      console.log("--- se envio correcto el message");
       res.status(200).json({ success: true, message: 'Mensaje enviado exitosamente.' });
     } else {
       res.status(response.status).json({ success: false, message: 'Error al enviar el mensaje.' });
     }
   } catch (error) {
-    console.error('Error al enviar el mensaje:', error);
+    console.error('--------------------', error);
     res.status(500).json({ success: false, message: 'Error interno del servidor.' });
   }
 });
 
+app.get("/", (req, res) => {
+  res.send(`<pre>Nothing to see here.
+Checkout README.md to start.</pre>`);
+});
+
 app.listen(PORT, () => {
-  console.log(`Server is listening on port: ${PORT}`);
+  console.log(`Server is listening on  port: ${PORT}`);
 });
