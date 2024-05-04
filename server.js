@@ -128,11 +128,12 @@ app.get('/send-message', async (req, res) => {
     {
       "messaging_product": "whatsapp",   
       "recipient_type": "individual",
-      "to": "543489313416",
+      // "to": "543489313416",
+         "to": "541164424319",
       "type": "text",
       "text": {
           "preview_url": false,
-          "body": "text-message-content"
+          "body": "Encontre tu tarjeta de credito, veni a buscarla al disco"
       }
     }
     // {
